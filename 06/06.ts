@@ -4,84 +4,14 @@ import Utils from "Utils";
 //Solution
 export default function solve(fileName: string, quest: string): string {
 	const data = Utils.readData(fileName, quest);
-
-	if (fileName.endsWith("_I")) return solveI(data);
-	if (fileName.endsWith("_II")) return solveII(data);
-	if (fileName.endsWith("_III")) return solveIII(data);
-
-	throw Error("Invalid filename");
+	const tree = buildTree("RR", parseInput(data));
+	return findPowerfulFruit(tree, fileName.endsWith("II"));
 }
 
 type NodeMap = Map<string, string[]>;
-type Node = {
-	id: string;
-	parent: Node | null;
-	children: Node[];
-};
+type Node = { id: string; parent: Node | null; children: Node[] };
 
 // Functions
-function solveI(data: string) {
-	const nodeMap = parseInput(data);
-	const tree = buildTree("RR", nodeMap);
-	const paths: Map<number, string[]> = new Map();
-
-	for (const pathNodes of getTreePaths(tree)) {
-		const path = pathNodes.join("");
-		const length = path.length;
-		paths.set(length, [...(paths.get(length) ?? []), path]);
-	}
-
-	for (const [_, pathArr] of paths) {
-		if (pathArr.length === 1) {
-			return pathArr[0];
-		}
-	}
-
-	throw Error("Path not found");
-}
-function solveII(data: string) {
-	const nodeMap = parseInput(data);
-	const tree = buildTree("RR", nodeMap);
-	const paths: Map<number, string[]> = new Map();
-
-	for (const pathNodes of getTreePaths(tree)) {
-		const fullPath = pathNodes.join("");
-		const path = pathNodes.reduce((acc, cur) => acc + cur[0], "");
-		const length = fullPath.length;
-
-		paths.set(length, [...(paths.get(length) ?? []), path]);
-	}
-
-	for (const [_, pathArr] of paths) {
-		if (pathArr.length === 1) {
-			return pathArr[0];
-		}
-	}
-
-	throw Error("Path not found");
-}
-function solveIII(data: string) {
-	const nodeMap = parseInput(data);
-	const tree = buildTree("RR", nodeMap);
-	const paths: Map<number, string[]> = new Map();
-
-	for (const pathNodes of getTreePaths(tree)) {
-		const fullPath = pathNodes.join("");
-		const path = pathNodes.reduce((acc, cur) => acc + cur[0], "");
-		const length = fullPath.length;
-
-		paths.set(length, [...(paths.get(length) ?? []), path]);
-	}
-
-	for (const [_, pathArr] of paths) {
-		if (pathArr.length === 1) {
-			return pathArr[0];
-		}
-	}
-
-	throw Error("Path not found");
-}
-
 function parseInput(data: string): NodeMap {
 	const nodeMap: NodeMap = new Map();
 
@@ -92,10 +22,34 @@ function parseInput(data: string): NodeMap {
 
 	return nodeMap;
 }
-function newNode(id: string, parent: Node | null = null): Node {
-	return { id, parent, children: [] };
+function findPowerfulFruit(tree: Node, condensePath: boolean = false) {
+	const paths: Map<number, string[]> = new Map();
+
+	for (const nodes of traverseTree(tree)) {
+		let path = "";
+		let length = 0;
+
+		nodes.forEach((id) => {
+			length += id.length;
+			path += condensePath ? id[0] : id;
+		});
+
+		paths.set(length, [...(paths.get(length) ?? []), path]);
+	}
+
+	for (const [_, pathArray] of paths) {
+		if (pathArray.length === 1) {
+			return pathArray[0];
+		}
+	}
+
+	throw Error("Path not found");
 }
 function buildTree(rootID: string, nodeMap: NodeMap) {
+	function newNode(id: string, parent: Node | null = null): Node {
+		return { id, parent, children: [] };
+	}
+
 	function DFS(parent: Node): Node {
 		for (const childID of nodeMap.get(parent.id) ?? []) {
 			if (childID === "BUG" || childID === "ANT") {
@@ -112,7 +66,7 @@ function buildTree(rootID: string, nodeMap: NodeMap) {
 
 	return DFS(newNode(rootID));
 }
-function getTreePaths(tree: Node): string[][] {
+function traverseTree(tree: Node): string[][] {
 	const paths: string[][] = [];
 
 	function DFS(parent: Node, path: string[] = []) {
