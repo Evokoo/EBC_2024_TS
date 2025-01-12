@@ -8,31 +8,31 @@ const currentQuest = path.basename(Deno.cwd());
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 	describe("I", () => {
 		it("Example", () => {
-			expect(solve("example_I", currentQuest)).toBe(0);
+			expect(solve("example_I", currentQuest)).toBe(10);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_I", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_I", currentQuest)).toBe(82);
 		});
 	});
 
-	describe.skip("II", () => {
-		it("Example", () => {
+	describe("II", () => {
+		it.skip("Example", () => {
 			expect(solve("example_II", currentQuest)).toBe(0);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe(894899);
 		});
 	});
 
-	describe.skip("III", () => {
+	describe("III", () => {
 		it("Example", () => {
-			expect(solve("example_III", currentQuest)).toBe(0);
+			expect(solve("example_III", currentQuest)).toBe(8);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_III", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_III", currentQuest)).toBe(122610071);
 		});
 	});
 });
