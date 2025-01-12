@@ -6,52 +6,55 @@ export default function solve(fileName: string, quest: string): number {
 	const data = Utils.readData(fileName, quest);
 	const dance = parseInput(data);
 
-	if (fileName.includes("III")) {
-		let max = 0;
-		const rows = dance.length;
-		const digits = dance.flat().filter((n) => {
-			const side = Math.ceil(n / rows) % 2 === 0;
-			const index = n % rows;
+	if (fileName.includes("III")) return solveIII(dance);
+	if (fileName.includes("II")) return solveII(dance);
+	if (fileName.includes("I")) return solveI(dance);
 
-			console.log({ n, side });
-
-			return index === 1;
-		});
-
-		console.log(digits);
-		// }
-
-		console.log(max);
-	}
-
-	if (fileName.includes("II")) {
-		const shouts: Map<number, number> = new Map();
-
-		for (let round = 0; true; round++) {
-			simulateDance(dance, round);
-
-			const shout = getRoundNumber(dance);
-			const shoutCount = (shouts.get(shout) ?? 0) + 1;
-
-			if (shoutCount === 2024) {
-				return (round + 1) * shout;
-			} else {
-				shouts.set(shout, shoutCount);
-			}
-		}
-	}
-	if (fileName.includes("I")) {
-		for (let round = 0; round < 10; round++) {
-			simulateDance(dance, round);
-		}
-		return getRoundNumber(dance);
-	}
-
-	throw Error("LAME");
+	throw Error("Invalid filename");
 }
 
 // Functions
-function parseInput(data: string) {
+function solveI(dance: number[][]): number {
+	for (let round = 0; round < 10; round++) {
+		simulateDance(dance, round);
+	}
+	return Number(getShout(dance));
+}
+function solveII(dance: number[][]): number {
+	const shouts: Map<number, number> = new Map();
+
+	for (let round = 0; Number.MAX_SAFE_INTEGER; round++) {
+		simulateDance(dance, round);
+
+		const shout = Number(getShout(dance));
+		const shoutCount = (shouts.get(shout) ?? 0) + 1;
+
+		if (shoutCount === 2024) {
+			return (round + 1) * shout;
+		} else {
+			shouts.set(shout, shoutCount);
+		}
+	}
+
+	throw Error("Result not found");
+}
+function solveIII(dance: number[][]): number {
+	let max = 0;
+
+	for (let i = 0; i < 100_000; i++) {
+		simulateDance(dance, i);
+
+		const shout: number = Number(getShout(dance));
+
+		if (shout > max) {
+			max = shout;
+		}
+	}
+
+	return max;
+}
+
+function parseInput(data: string): number[][] {
 	const digits: number[][] = data
 		.split("\n")
 		.map((row) => row.split(" ").map(Number));
@@ -82,12 +85,12 @@ function simulateDance(dance: number[][], round: number): number[][] {
 
 	return dance;
 }
-function getRoundNumber(grid: number[][]): number {
-	const result = [];
+function getShout(grid: number[][]): string {
+	let result = "";
 
 	for (let i = 0; i < grid.length; i++) {
-		result.push(grid[i][0]);
+		result += grid[i][0];
 	}
 
-	return Number(result.join(""));
+	return result;
 }

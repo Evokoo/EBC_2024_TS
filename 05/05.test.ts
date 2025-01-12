@@ -16,7 +16,7 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 		});
 	});
 
-	describe.skip("II", () => {
+	describe("II", () => {
 		it("Example", () => {
 			expect(solve("example_II", currentQuest)).toBe(50877075);
 		});
@@ -28,11 +28,11 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 
 	describe("III", () => {
 		it("Example", () => {
-			expect(solve("example_III", currentQuest)).toBe(0);
+			expect(solve("example_III", currentQuest)).toBe(6584);
 		});
 
 		it("Solution", () => {
-			expect(solve("input_III", currentQuest)).toBe(0);
+			expect(solve("input_III", currentQuest)).toBe(2693100410001002);
 		});
 	});
 });
