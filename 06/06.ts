@@ -8,11 +8,10 @@ export default function solve(fileName: string, quest: string): string {
 	return findPowerfulFruit(tree, fileName.endsWith("II"));
 }
 
-type NodeMap = Map<string, string[]>;
 type Node = { id: string; parent: Node | null; children: Node[] };
 
 // Functions
-function parseInput(data: string): NodeMap {
+function parseInput(data: string): Map<string, string[]> {
 	const nodeMap: NodeMap = new Map();
 
 	for (const line of data.split("\n")) {
@@ -45,7 +44,7 @@ function findPowerfulFruit(tree: Node, condense: boolean = false) {
 
 	throw Error("Path not found");
 }
-function buildTree(rootID: string, nodeMap: NodeMap) {
+function buildTree(rootID: string, nodeMap: Map<string, string[]>) {
 	function newNode(id: string, parent: Node | null = null): Node {
 		return { id, parent, children: [] };
 	}
