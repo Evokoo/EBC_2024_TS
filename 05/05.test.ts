@@ -18,20 +18,20 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 
 	describe.skip("II", () => {
 		it("Example", () => {
-			expect(solve("example_II", currentQuest)).toBe(0);
+			expect(solve("example_II", currentQuest)).toBe(50877075);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe(17089733162436);
 		});
 	});
 
-	describe.skip("III", () => {
+	describe("III", () => {
 		it("Example", () => {
 			expect(solve("example_III", currentQuest)).toBe(0);
 		});
 
-		it.skip("Solution", () => {
+		it("Solution", () => {
 			expect(solve("input_III", currentQuest)).toBe(0);
 		});
 	});
