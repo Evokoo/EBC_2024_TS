@@ -8,31 +8,31 @@ const currentQuest = path.basename(Deno.cwd());
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 	describe("I", () => {
 		it("Example", () => {
-			expect(solve("example_I", currentQuest)).toBe(0);
+			expect(solve("example_I", currentQuest)).toBe("RRB@");
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_I", currentQuest)).toBe(0);
-		});
-	});
-
-	describe.skip("II", () => {
-		it("Example", () => {
-			expect(solve("example_II", currentQuest)).toBe(0);
-		});
-
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_I", currentQuest)).toBe("RRWZFPGMZKBM@");
 		});
 	});
 
-	describe.skip("III", () => {
-		it("Example", () => {
-			expect(solve("example_III", currentQuest)).toBe(0);
+	describe("II", () => {
+		it.skip("Example", () => {
+			expect(solve("example_II", currentQuest)).toBe("");
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_III", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe("RJVDGLRZJF@");
+		});
+	});
+
+	describe("III", () => {
+		it.skip("Example", () => {
+			expect(solve("example_III", currentQuest)).toBe("");
+		});
+
+		it("Solution", () => {
+			expect(solve("input_III", currentQuest)).toBe("RSHPKNPBKQCS@");
 		});
 	});
 });
