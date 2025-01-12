@@ -12,7 +12,7 @@ type Node = { id: string; parent: Node | null; children: Node[] };
 
 // Functions
 function parseInput(data: string): Map<string, string[]> {
-	const nodeMap: NodeMap = new Map();
+	const nodeMap: Map<string, string[]> = new Map();
 
 	for (const line of data.split("\n")) {
 		const [id, ...children] = line.match(/[\w\@]+/g) || [""];
@@ -44,13 +44,13 @@ function findPowerfulFruit(tree: Node, condense: boolean = false) {
 
 	throw Error("Path not found");
 }
-function buildTree(rootID: string, nodeMap: Map<string, string[]>) {
+function buildTree(rootID: string, nodes: Map<string, string[]>) {
 	function newNode(id: string, parent: Node | null = null): Node {
 		return { id, parent, children: [] };
 	}
 
 	function DFS(parent: Node): Node {
-		for (const childID of nodeMap.get(parent.id) ?? []) {
+		for (const childID of nodes.get(parent.id) ?? []) {
 			if (childID === "BUG" || childID === "ANT") {
 				continue;
 			}
