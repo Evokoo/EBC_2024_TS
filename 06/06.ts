@@ -22,7 +22,7 @@ function parseInput(data: string): NodeMap {
 
 	return nodeMap;
 }
-function findPowerfulFruit(tree: Node, condensePath: boolean = false) {
+function findPowerfulFruit(tree: Node, condense: boolean = false) {
 	const paths: Map<number, string[]> = new Map();
 
 	for (const nodes of traverseTree(tree)) {
@@ -31,7 +31,7 @@ function findPowerfulFruit(tree: Node, condensePath: boolean = false) {
 
 		nodes.forEach((id) => {
 			length += id.length;
-			path += condensePath ? id[0] : id;
+			path += condense ? id[0] : id;
 		});
 
 		paths.set(length, [...(paths.get(length) ?? []), path]);
