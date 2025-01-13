@@ -8,11 +8,11 @@ const currentQuest = path.basename(Deno.cwd());
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 	describe("I", () => {
 		it("Example", () => {
-			expect(solve("example_I", currentQuest)).toBe(0);
+			expect(solve("example_I", currentQuest)).toBe("BDCA");
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_I", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_I", currentQuest)).toBe("ICKAJHFBG");
 		});
 	});
 
