@@ -6,7 +6,7 @@ import solve from "./07.ts";
 const currentQuest = path.basename(Deno.cwd());
 
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
-	describe("I", () => {
+	describe.skip("I", () => {
 		it("Example", () => {
 			expect(solve("example_I", currentQuest)).toBe("BDCA");
 		});
@@ -16,13 +16,13 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 		});
 	});
 
-	describe.skip("II", () => {
+	describe("II", () => {
 		it("Example", () => {
-			expect(solve("example_II", currentQuest)).toBe(0);
+			expect(solve("example_II", currentQuest)).toBe("DCBA");
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe("IACKFGDBJ");
 		});
 	});
 
