@@ -2,11 +2,33 @@
 import Utils from "Utils";
 
 //Solution
-export default function solve(fileName: string, quest: string): string {
+export function I(fileName: string, quest: string): string {
 	const data = Utils.readData(fileName, quest);
 	const race = parseInput(data);
 
 	return getRaceResult(simulateRace(race, 10));
+}
+export function II(fileName: string, quest: string): string {
+	const data = Utils.readData(fileName, quest);
+	const race = parseInput(data);
+
+	return getRaceResult(simulateRace(race, 10));
+}
+export function III(fileName: string, quest: string): number {
+	const data = Utils.readData(fileName, quest);
+	const { racers, track } = parseInput(data);
+	const rival = simulateRace({ racers, track }, 11).get("A")!.score;
+
+	let wins = 0;
+
+	for (const plan of generatePlanPermutations()) {
+		racers.set("X", { actions: plan, essence: 10, score: 0 });
+		if (simulateRace({ racers, track }, 11).get("X")!.score > rival) {
+			wins++;
+		}
+	}
+
+	return wins;
 }
 
 type Race = { racers: Map<string, Racer>; track: number[] };
@@ -38,35 +60,36 @@ function parseInput(data: string): Race {
 		const grid: string[][] = trackData.split("\n").map((row) => [...row]);
 		const track: number[] = [];
 
-		const seen: Set<string> = new Set();
-		const queue = [{ x: 1, y: 0, bearing: 90 }];
-		const directions: Record<number, number[]> = {
-			90: [1, 0],
-			180: [0, 1],
-			270: [-1, 0],
-			0: [0, -1],
-		};
+		const seen: Set<string> = new Set(["0,0"]);
+		const queue = [{ x: 1, y: 0 }];
+		const directions: number[][] = [
+			[0, 1],
+			[0, -1],
+			[1, 0],
+			[-1, 0],
+		];
 
 		while (queue.length) {
-			const { x, y, bearing } = queue.shift()!;
+			const { x, y } = queue.shift()!;
 			const coord = `${x},${y}`;
 
 			if (seen.has(coord)) {
 				continue;
 			} else {
-				const [dx, dy] = directions[bearing];
+				track.push(getOperatorValue(grid[y][x]));
+				seen.add(coord);
+			}
+
+			for (const [dx, dy] of directions) {
 				const [nx, ny] = [x + dx, y + dy];
 
-				if (grid[ny] && grid[ny][nx]) {
-					seen.add(coord);
-					track.push(getOperatorValue(grid[y][x]));
-					queue.push({ x: nx, y: ny, bearing });
-				} else {
-					queue.push({ x, y, bearing: (bearing + 90) % 360 });
+				if (grid[ny] && grid[ny][nx] && grid[ny][nx] !== " ") {
+					queue.push({ x: nx, y: ny });
 				}
 			}
 		}
 
+		track.push(0);
 		return track;
 	}
 	function getOperatorValue(operator: string): number {
@@ -105,4 +128,26 @@ function simulateRace(
 		}
 	}
 	return racers;
+}
+function generatePlanPermutations(): number[][] {
+	const permutations: number[][] = [];
+
+	const generate = (
+		a: number, // "+"
+		b: number, // "-"
+		c: number, // "="
+		sequence: number[] = []
+	) => {
+		if (a === 0 && b === 0 && c === 0) {
+			permutations.push(sequence);
+		} else {
+			if (a > 0) generate(a - 1, b, c, [...sequence, 1]);
+			if (b > 0) generate(a, b - 1, c, [...sequence, -1]);
+			if (c > 0) generate(a, b, c - 1, [...sequence, 0]);
+		}
+	};
+
+	generate(5, 3, 3);
+
+	return permutations;
 }

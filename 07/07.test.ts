@@ -1,38 +1,38 @@
 import * as path from "@std/path";
 import { expect } from "@std/expect";
 import { describe, it } from "@std/testing/bdd";
-import solve from "./07.ts";
+import { I, II, III } from "./07.ts";
 
 const currentQuest = path.basename(Deno.cwd());
 
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
-	describe.skip("I", () => {
+	describe("I", () => {
 		it("Example", () => {
-			expect(solve("example_I", currentQuest)).toBe("BDCA");
+			expect(I("example_I", currentQuest)).toBe("BDCA");
 		});
 
 		it("Solution", () => {
-			expect(solve("input_I", currentQuest)).toBe("ICKAJHFBG");
+			expect(I("input_I", currentQuest)).toBe("ICKAJHFBG");
 		});
 	});
 
 	describe("II", () => {
 		it("Example", () => {
-			expect(solve("example_II", currentQuest)).toBe("DCBA");
+			expect(II("example_II", currentQuest)).toBe("DCBA");
 		});
 
 		it("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe("IACKFGDBJ");
+			expect(II("input_II", currentQuest)).toBe("IACKFGDBJ");
 		});
 	});
 
-	describe.skip("III", () => {
-		it("Example", () => {
-			expect(solve("example_III", currentQuest)).toBe(0);
+	describe("III", () => {
+		it.skip("Example", () => {
+			expect(III("example_III", currentQuest)).toBe(0);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_III", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(III("input_III", currentQuest)).toBe(4275);
 		});
 	});
 });
