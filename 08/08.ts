@@ -8,7 +8,6 @@ export default function solve(fileName: string, quest: string): number {
 	if (fileName.endsWith("_I")) {
 		return I(Number(data));
 	}
-
 	if (fileName.endsWith("_II")) {
 		const [acolytes, blocks] = fileName.startsWith("input")
 			? [1111, 20240000]
