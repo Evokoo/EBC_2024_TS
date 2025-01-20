@@ -21,8 +21,8 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 			expect(solve("example_II", currentQuest)).toBe(1851);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe(190982);
 		});
 	});
 
