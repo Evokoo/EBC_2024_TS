@@ -29,15 +29,15 @@ export default function solve(fileName: string, quest: string): number {
 type GenerationMap = Map<string, string[]>;
 
 // Functions
-function parseInput(data: string) {
-	const generationMap: GenerationMap = new Map();
+function parseInput(data: string): GenerationMap {
+	const genMap: GenerationMap = new Map();
 
 	for (const line of data.split("\n")) {
 		const [key, nextGen] = line.split(":");
-		generationMap.set(key, nextGen.split(","));
+		genMap.set(key, nextGen.split(","));
 	}
 
-	return generationMap;
+	return genMap;
 }
 function calculatePopulation(
 	genMap: GenerationMap,
