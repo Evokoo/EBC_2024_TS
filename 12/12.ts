@@ -2,10 +2,14 @@
 import Utils from "Utils";
 
 //Solution
-export default function solve(fileName: string, quest: string): number {
+export default function solve(fileName: string, quest: string) {
 	const data = Utils.readData(fileName, quest);
 
-	return simulateBattle(parseInput(data));
+	if (fileName.endsWith("_III")) {
+		simulateMetors(data);
+	} else {
+		return simulateBattle(parseInput(data));
+	}
 }
 
 type Point = { x: number; y: number };
@@ -35,7 +39,6 @@ function parseInput(data: string): Battle {
 
 	return { knights, targets };
 }
-
 function simulateBattle({ knights, targets }: Battle) {
 	let score = 0;
 
@@ -56,7 +59,6 @@ function simulateBattle({ knights, targets }: Battle) {
 
 	return score;
 }
-
 function collision({ x, y }: Point, power: number, target: Point): boolean {
 	const path = [
 		[1, -1],
@@ -80,4 +82,22 @@ function collision({ x, y }: Point, power: number, target: Point): boolean {
 	}
 
 	return false;
+}
+function simulateMetors(data: string) {
+	const knights: Knight[] = [
+		{ x: 1, y: 0, id: "C", value: 3 },
+		{ x: 1, y: 1, id: "B", value: 2 },
+		{ x: 1, y: 2, id: "A", value: 1 },
+	];
+
+	for (const coord of data.split("\n")) {
+		const [x, y] = coord.split(" ").map(Number);
+		const basePower = Math.max(0, y - x);
+
+		//m = -1
+		//y1 = y2 - slope * (x2 - x1);
+
+		const y1 = y - -1 * (x - 1);
+		console.log(basePower);
+	}
 }
