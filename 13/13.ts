@@ -7,7 +7,11 @@ export default function solve(fileName: string, quest: string): number {
 	const data = Utils.readData(fileName, quest);
 	const maze = parseInput(data);
 
-	return traverseMaze(maze);
+	if (fileName.endsWith("_III")) {
+		return traverseMaze(maze, true);
+	} else {
+		return traverseMaze(maze);
+	}
 }
 
 type Point = { x: number; y: number };
@@ -17,6 +21,8 @@ interface Maze {
 	path: Map<string, number>;
 	start: Point;
 	end: Point;
+	width: number;
+	height: number;
 }
 
 interface State {
@@ -59,30 +65,42 @@ function parseInput(data: string): Maze {
 		}
 	}
 
-	return { path, start, end };
+	return { path, start, end, width: grid[0].length, height: grid.length };
 }
-function traverseMaze({ start, end, path }: Maze) {
-	// const queue: State[] = [{ pos: start, level: 0, time: 0 }];
+function traverseMaze(
+	{ start, end, path, width, height }: Maze,
+	reverse: boolean = false
+) {
 	const queue: BinaryHeap<State> = new BinaryHeap((a, b) => a.time - b.time);
 
-	queue.push({ pos: start, level: 0, time: 0 });
+	queue.push({ pos: reverse ? end : start, level: 0, time: 0 });
 
 	while (queue.length) {
 		const current = queue.pop()!;
 		const coord = `${current.pos.x},${current.pos.y}`;
 
-		if (current.pos.x === end.x && current.pos.y === end.y) {
+		if (isExitCondition(current)) {
 			return current.time;
 		} else {
 			pushNewStates(current);
 			path.delete(coord);
 		}
-
-		// queue.sort((a, b) => a.time - b.time);
 	}
 
 	throw Error("Path not found");
 
+	function isExitCondition(current: State): boolean {
+		if (reverse) {
+			return (
+				current.pos.x === 0 ||
+				current.pos.y === 0 ||
+				current.pos.x === width - 1 ||
+				current.pos.y === height - 1
+			);
+		} else {
+			return current.pos.x === end.x && current.pos.y === end.y;
+		}
+	}
 	function pushNewStates(current: State): void {
 		for (const { x, y, level } of getPlatforms(current.pos)) {
 			queue.push({
@@ -97,7 +115,7 @@ function traverseMaze({ start, end, path }: Maze) {
 		const down = (current - target + 10) % 10;
 		return Math.min(up, down);
 	}
-	function getPlatforms({ x, y }: Point) {
+	function getPlatforms({ x, y }: Point): Platform[] {
 		const platforms: Platform[] = [];
 		const directions = [
 			[0, 1],
