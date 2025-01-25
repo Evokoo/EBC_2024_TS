@@ -92,7 +92,7 @@ function simulateMetors(data: string) {
 
 	for (const coord of data.split("\n")) {
 		const [x, y] = coord.split(" ").map(Number);
-		const basePower = Math.max(0, y - x);
+		const basePower = Math.max(1, y - x);
 
 		//m = -1
 		//y1 = y2 - slope * (x2 - x1);
