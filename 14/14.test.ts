@@ -6,23 +6,23 @@ import solve from "./14.ts";
 const currentQuest = path.basename(Deno.cwd());
 
 describe(`EBC 2014 - Quest ${currentQuest}`, () => {
-	describe("I", () => {
+	describe.skip("I", () => {
 		it("Example", () => {
-			expect(solve("example_I", currentQuest)).toBe(0);
+			expect(solve("example_I", currentQuest)).toBe(7);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_I", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_I", currentQuest)).toBe(144);
 		});
 	});
 
-	describe.skip("II", () => {
+	describe("II", () => {
 		it("Example", () => {
-			expect(solve("example_II", currentQuest)).toBe(0);
+			expect(solve("example_II", currentQuest)).toBe(32);
 		});
 
-		it.skip("Solution", () => {
-			expect(solve("input_II", currentQuest)).toBe(0);
+		it("Solution", () => {
+			expect(solve("input_II", currentQuest)).toBe(5074);
 		});
 	});
 
