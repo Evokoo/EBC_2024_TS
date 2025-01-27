@@ -6,16 +6,21 @@ export default function solve(fileName: string, quest: string): number {
 	const data = Utils.readData(fileName, quest);
 	const maze = parseInput(data);
 
-	return shortestPath(maze);
+	if (fileName.endsWith("_I")) {
+		return collectOneHerb(maze);
+	} else {
+		return collectManyHerbs(maze);
+	}
 }
 
 type Point = { x: number; y: number };
-type Herb = Point & { id: number };
+type Herb = Point & { type: string };
 type State = { pos: Point; steps: number };
 
 interface Maze {
 	start: Point;
 	herbs: Herb[];
+	herbTypes: Set<string>;
 	path: Set<string>;
 }
 
@@ -25,6 +30,7 @@ function parseInput(data: string) {
 	const maze: Maze = {
 		start: { x: -1, y: -1 },
 		herbs: [],
+		herbTypes: new Set(),
 		path: new Set(),
 	};
 
@@ -34,9 +40,8 @@ function parseInput(data: string) {
 			const coord = `${x},${y}`;
 
 			switch (tile) {
-				case "H":
-					maze.herbs.push({ x, y, id: maze.herbs.length });
-					maze.path.add(coord);
+				case "#":
+				case "~":
 					break;
 				case ".": {
 					maze.path.add(coord);
@@ -45,25 +50,86 @@ function parseInput(data: string) {
 						maze.start.x = x;
 						maze.start.y = y;
 					}
+					break;
+				}
+				default: {
+					maze.path.add(coord);
+					maze.herbs.push({ x, y, type: tile });
+					maze.herbTypes.add(tile);
 
 					break;
 				}
-				default:
-					break;
 			}
 		}
 	}
 
 	return maze;
 }
-function shortestPath({ start, herbs, path }: Maze): number {
+function collectOneHerb({ start, herbs, path }: Maze): number {
 	const herbDistances = herbs.map((herb) => {
 		return calculateDistance(start, herb, path);
 	});
 
 	return Math.min(...herbDistances) * 2;
 }
+function collectManyHerbs({ start, herbs, herbTypes, path }: Maze) {
+	const cache: Map<string, Map<string, number>> = new Map();
 
+	function calculateCachedDistance(from: Point, to: Point): number {
+		const fromKey = `${from.x},${from.y}`;
+		const toKey = `${to.x},${to.y}`;
+
+		if (!cache.has(fromKey)) {
+			cache.set(fromKey, new Map());
+		}
+
+		const fromCache = cache.get(fromKey)!;
+
+		if (!fromCache.has(toKey)) {
+			const distance = calculateDistance(from, to, path);
+
+			fromCache.set(toKey, distance);
+
+			if (!cache.has(toKey)) {
+				cache.set(toKey, new Map());
+			}
+
+			cache.get(toKey)!.set(fromKey, distance);
+		}
+
+		return fromCache.get(toKey)!;
+	}
+
+	let shortestPath = Infinity;
+
+	function DFS(
+		pos: Point,
+		steps: number = 0,
+		collected: Set<string> = new Set()
+	) {
+		if (steps > shortestPath) return;
+
+		if (collected.size === herbTypes.size) {
+			const finalDistance = steps + calculateCachedDistance(pos, start);
+			shortestPath = Math.min(shortestPath, finalDistance);
+			return;
+		}
+
+		for (const { x, y, type } of herbs) {
+			if (collected.has(type)) continue;
+
+			const distance = calculateCachedDistance(pos, { x, y });
+
+			collected.add(type);
+			DFS({ x, y }, steps + distance, collected);
+			collected.delete(type);
+		}
+	}
+
+	DFS(start);
+
+	return shortestPath;
+}
 function calculateDistance(start: Point, end: Point, path: Set<string>) {
 	const queue: State[] = [{ pos: start, steps: 0 }];
 	const seen: Set<string> = new Set();
