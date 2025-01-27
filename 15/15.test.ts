@@ -26,7 +26,7 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 		});
 	});
 
-	describe.skip("III", () => {
+	describe("III", () => {
 		it.skip("Example", () => {
 			expect(solve("example_III", currentQuest)).toBe(0);
 		});

@@ -113,16 +113,15 @@ function collectManyHerbs({ start, herbs, herbTypes, path }: Maze) {
 			const finalDistance = steps + calculateCachedDistance(pos, start);
 			shortestPath = Math.min(shortestPath, finalDistance);
 			return;
-		}
+		} else {
+			for (const { x, y, type } of herbs) {
+				if (collected.has(type)) continue;
 
-		for (const { x, y, type } of herbs) {
-			if (collected.has(type)) continue;
+				const distance = calculateCachedDistance(pos, { x, y });
+				const herbCollection = collected.union(new Set([type]));
 
-			const distance = calculateCachedDistance(pos, { x, y });
-
-			collected.add(type);
-			DFS({ x, y }, steps + distance, collected);
-			collected.delete(type);
+				DFS({ x, y }, steps + distance, herbCollection);
+			}
 		}
 	}
 
