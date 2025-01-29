@@ -6,8 +6,12 @@ export default function solve(fileName: string, quest: string) {
 	const data = Utils.readData(fileName, quest);
 	const wheels = parseInput(data);
 
+	if (fileName.endsWith("_II")) {
+		return coinTotal(wheels, 202420242024);
+	}
+
 	if (fileName.endsWith("_I")) {
-		return predictSequence(wheels, 100);
+		return getSequence(wheels, 100);
 	}
 
 	return 0;
@@ -33,57 +37,44 @@ function parseInput(data: string): Wheel[] {
 		symbols,
 	}));
 }
-function predictSequence(wheels: Wheel[], nth: number) {
+function getSequence(wheels: Wheel[], n: number) {
 	const result: string[] = [];
 
 	for (const wheel of wheels) {
-		const symbolIndex = (wheel.rotation * nth) % wheel.symbols.length;
+		const symbolIndex = (wheel.rotation * n) % wheel.symbols.length;
 		result.push(wheel.symbols[symbolIndex]);
 	}
 
 	return result.join(" ");
 }
+function coinTotal(wheels: Wheel[], target: number) {
+	const loop = Utils.arrLCM(wheels.map((wheel) => wheel.symbols.length));
+	const spins: Map<number, number> = new Map();
 
-// function spinWheels(wheels: Wheel[], spins: number) {
-// 	const results: Map<string, Set<number>> = new Map();
-// 	// let coins = 0;
+	let coins = 0;
 
-// 	for (let spin = 0; spin <= spins; spin++) {
-// 		const result: string[] = [];
+	for (let i = 1; i <= loop; i++) {
+		const result = getSequence(wheels, i);
+		coins += coinCount(result);
+		spins.set(i, coins);
+	}
 
-// 		for (let i = 0; i < wheels.length; i++) {
-// 			const wheel = wheels[i];
-// 			result.push(wheel.symbols[wheel.index]);
-// 			wheel.index = (wheel.index + wheel.rotation) % wheel.symbols.length;
-// 			wheels[i] = wheel;
-// 		}
+	return coins * Math.floor(target / loop) + spins.get(target % loop)!;
+}
+function coinCount(result: string, count: number = 0) {
+	const symbolCount: Map<string, number> = new Map();
 
-// 		const resultString = result.join(" ");
-// 		const resultIndexes = results.get(resultString) ?? new Set();
-// 		resultIndexes.add(spin);
+	for (const symbol of result.split(" ")) {
+		const [a, _, b] = [...symbol];
+		symbolCount.set(a, (symbolCount.get(a) ?? 0) + 1);
+		symbolCount.set(b, (symbolCount.get(b) ?? 0) + 1);
+	}
 
-// 		results.set(resultString, resultIndexes);
+	for (const [_, amount] of symbolCount) {
+		if (amount >= 3) {
+			count += 1 + Math.max(amount - 3, 0);
+		}
+	}
 
-// 		// coins += scoreResult(result);
-// 	}
-
-// 	for (const [result, seenAt] of results) {
-// 		if (seenAt.has(spins)) return result;
-// 	}
-// }
-
-// function scoreResult(result: string) {
-// 	let score = 0;
-
-// 	const charCount: Map<string, number> = new Map();
-
-// 	for (const char of result) {
-// 		charCount.set(char, (charCount.get(char) ?? 0) + 1);
-
-// 		if (charCount.get(char)! >= 3) {
-// 			score++;
-// 		}
-// 	}
-
-// 	return score;
-// }
+	return count;
+}
