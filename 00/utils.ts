@@ -6,20 +6,20 @@ function readData(fileName: string, quest: string) {
 	const file = path.resolve(Deno.cwd(), `../${quest}/${fileName}.txt`);
 	return Deno.readTextFileSync(file);
 }
-// function gcd(a: number, b: number): number {
-// 	return b === 0 ? a : gcd(b, a % b);
-// }
-// function lcm(a: number, b: number): number {
-// 	return (a * b) / gcd(a, b);
-// }
-// function arrLCM(arr: number[]): number {
-// 	let result = arr[0];
-// 	for (let i = 1; i < arr.length; i++) {
-// 		result = lcm(result, arr[i]);
-// 	}
+function gcd(a: number, b: number): number {
+	return b === 0 ? a : gcd(b, a % b);
+}
+function lcm(a: number, b: number): number {
+	return (a * b) / gcd(a, b);
+}
+function arrLCM(arr: number[]): number {
+	let result = arr[0];
+	for (let i = 1; i < arr.length; i++) {
+		result = lcm(result, arr[i]);
+	}
+	return result;
+}
 
-// 	return result;
-// }
 // function derangement(n: number): number {
 // 	switch (n) {
 // 		case 1:
@@ -131,7 +131,7 @@ function readData(fileName: string, quest: string) {
 
 export default {
 	readData,
-	// arrLCM,
+	arrLCM,
 	// derangement,
 	// generatePermutations,
 	// manhattanDistance,
