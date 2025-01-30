@@ -1,6 +1,6 @@
 import * as path from "@std/path";
 
-// type Point = { x: number; y: number; z?: number };
+type Point = { x: number; y: number; z?: number };
 
 function readData(fileName: string, quest: string) {
 	const file = path.resolve(Deno.cwd(), `../${quest}/${fileName}.txt`);
@@ -77,13 +77,13 @@ function arrLCM(arr: number[]): number {
 // }
 
 // //Manhattan Distance
-// function manhattanDistance(a: Point, b: Point): number {
-// 	return (
-// 		Math.abs(a.x - b.x) +
-// 		Math.abs(a.y - b.y) +
-// 		Math.abs((a.z ?? 0) - (b.z ?? 0))
-// 	);
-// }
+function manhattanDistance(a: Point, b: Point): number {
+	return (
+		Math.abs(a.x - b.x) +
+		Math.abs(a.y - b.y) +
+		Math.abs((a.z ?? 0) - (b.z ?? 0))
+	);
+}
 // //Euclidean Distance
 // function euclideanDistance(a: Point, b: Point): number {
 // 	return (
@@ -134,7 +134,7 @@ export default {
 	arrLCM,
 	// derangement,
 	// generatePermutations,
-	// manhattanDistance,
+	manhattanDistance,
 	// euclideanDistance,
 	// nthInteration,
 };
