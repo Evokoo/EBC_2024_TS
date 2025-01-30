@@ -5,6 +5,11 @@ import { BinaryHeap } from "@std/data-structures";
 //Solution
 export default function solve(fileName: string, quest: string): number {
 	const data = Utils.readData(fileName, quest);
+
+	if (fileName.endsWith("_III")) {
+		return findBrillant(parseInput(data));
+	}
+
 	return analyseConstellation(parseInput(data));
 }
 
@@ -29,7 +34,6 @@ function parseInput(data: string) {
 
 	return stars;
 }
-
 function analyseConstellation(stars: Stars) {
 	const queue: BinaryHeap<Node> = new BinaryHeap(
 		(a, b) => a.distance - b.distance
@@ -40,7 +44,7 @@ function analyseConstellation(stars: Stars) {
 	const visited: Set<number> = new Set();
 	const connections: [number, number][] = [];
 
-	queue.push({ id: 1, distance: 0, parent: null });
+	queue.push({ id: [...stars][0][0], distance: 0, parent: null });
 
 	while (queue.length) {
 		const current = queue.pop()!;
@@ -59,6 +63,7 @@ function analyseConstellation(stars: Stars) {
 			if (visited.has(id)) continue;
 
 			const currentPoint: Point = stars.get(current.id)!;
+
 			const distance = Utils.manhattanDistance(currentPoint, point);
 
 			if (distance < distanceMap.get(id)!) {
@@ -75,4 +80,45 @@ function analyseConstellation(stars: Stars) {
 	}
 
 	return totalDistance + stars.size;
+}
+function findBrillant(stars: Stars) {
+	const seen: Set<number> = new Set();
+
+	function BFS(star: { id: number; point: Point }) {
+		const constellation: Stars = new Map([[star.id, star.point]]);
+		const queue = [star];
+
+		while (queue.length) {
+			const current = queue.shift()!;
+
+			if (seen.has(current.id)) {
+				continue;
+			} else {
+				seen.add(current.id);
+			}
+
+			for (const [id, point] of stars) {
+				if (seen.has(id)) continue;
+				if (Utils.manhattanDistance(current.point, point) < 6) {
+					constellation.set(id, point);
+					queue.push({ id, point });
+				}
+			}
+		}
+
+		return constellation;
+	}
+
+	const brillantConstellations: number[] = [];
+
+	for (const [id, point] of stars) {
+		if (seen.has(id)) continue;
+		const constellationSize = analyseConstellation(BFS({ id, point }));
+		brillantConstellations.push(constellationSize);
+	}
+
+	return brillantConstellations
+		.sort((a, b) => b - a)
+		.slice(0, 3)
+		.reduce((acc, cur) => acc * cur, 1);
 }
