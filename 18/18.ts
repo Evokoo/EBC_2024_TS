@@ -18,7 +18,7 @@ export default function solve(fileName: string, quest: string): number {
 			}
 		}
 
-		return [...locations].sort((a, b) => a[1] - b[1])[0][1];
+		return Math.min(...locations.values());
 	}
 
 	return waterFarm(farm);
