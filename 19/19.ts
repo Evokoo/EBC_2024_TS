@@ -4,22 +4,24 @@ import Utils from "Utils";
 //Solution
 export default function solve(fileName: string, quest: string) {
 	const data = Utils.readData(fileName, quest);
+	const message = parseInput(data);
 
 	if (fileName.endsWith("_III")) {
-		return decodeMessage(parseInput(data), 1000);
+		findLoop(message);
+		return -1;
 	}
 
 	if (fileName.endsWith("_II")) {
-		return decodeMessage(parseInput(data), 100);
+		findLoop(message);
+		return extractSecret(decodeMessage(message, 100));
 	}
 
 	if (fileName.endsWith("_I")) {
-		return decodeMessage(parseInput(data));
+		return extractSecret(decodeMessage(message));
 	}
 }
 
 type Point = { x: number; y: number };
-
 interface Message {
 	directions: string;
 	grid: string[][];
@@ -41,7 +43,6 @@ function parseInput(data: string): Message {
 
 	return { directions, grid, pivotPoints };
 }
-
 function decodeMessage(
 	{ directions, grid, pivotPoints }: Message,
 	cycles: number = 1
@@ -54,12 +55,7 @@ function decodeMessage(
 		}
 	}
 
-	printGrid(grid);
-
-	for (const row of grid) {
-		if (!row.includes(">")) continue;
-		return row.slice(row.indexOf(">") + 1, row.indexOf("<")).join("");
-	}
+	return grid;
 }
 function rotateGrid({ x, y }: Point, grid: string[][], direction: string) {
 	const cells: [number, number][] = [
@@ -84,6 +80,45 @@ function rotateGrid({ x, y }: Point, grid: string[][], direction: string) {
 
 	return grid;
 }
+function extractSecret(grid: string[][]): string {
+	for (const row of grid) {
+		if (!row.includes(">")) continue;
+		return row.slice(row.indexOf(">") + 1, row.indexOf("<")).join("");
+	}
+
+	throw Error("Message not found");
+}
+function getMoveMap(message: Message): Map<string, string> {
+	let coordinateGrid = structuredClone(message.grid);
+
+	for (let y = 0; y < message.grid.length; y++) {
+		for (let x = 0; x < message.grid[0].length; x++) {
+			coordinateGrid[y][x] = `${x},${y}`;
+		}
+	}
+
+	coordinateGrid = decodeMessage({ ...message, grid: coordinateGrid });
+	const moveMap: Map<string, string> = new Map();
+
+	for (let y = 0; y < message.grid.length; y++) {
+		for (let x = 0; x < message.grid[0].length; x++) {
+			moveMap.set(`${x},${y}`, coordinateGrid[y][x]);
+		}
+	}
+
+	return moveMap;
+}
+function findLoop({ grid, pivotPoints, directions }: Message) {
+	const moveMap: Map<string, string> = getMoveMap({
+		grid,
+		pivotPoints,
+		directions,
+	});
+
+	console.log(moveMap);
+}
+
+// Debug
 function printGrid(grid: string[][]): void {
 	const msg = grid.map((row) => row.join("")).join("\n");
 
