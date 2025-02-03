@@ -7,21 +7,20 @@ export default function solve(fileName: string, quest: string) {
 	const message = parseInput(data);
 
 	if (fileName.endsWith("_III")) {
-		findLoop(message);
-		return -1;
+		return decodeMessage(message, 1048576000);
 	}
 
 	if (fileName.endsWith("_II")) {
-		findLoop(message);
-		return extractSecret(decodeMessage(message, 100));
+		return decodeMessage(message, 100);
 	}
 
 	if (fileName.endsWith("_I")) {
-		return extractSecret(decodeMessage(message));
+		return decodeMessage(message);
 	}
 }
 
 type Point = { x: number; y: number };
+type Update = Point & { value: string };
 interface Message {
 	directions: string;
 	grid: string[][];
@@ -43,21 +42,11 @@ function parseInput(data: string): Message {
 
 	return { directions, grid, pivotPoints };
 }
-function decodeMessage(
-	{ directions, grid, pivotPoints }: Message,
-	cycles: number = 1
-) {
-	for (let cycle = 0; cycle < cycles; cycle++) {
-		for (let i = 0; i < pivotPoints.length; i++) {
-			const point = pivotPoints[i];
-			const direction = directions[i % directions.length];
-			grid = rotateGrid(point, grid, direction);
-		}
-	}
-
-	return grid;
-}
-function rotateGrid({ x, y }: Point, grid: string[][], direction: string) {
+function rotatePoint(
+	{ x, y }: Point,
+	grid: string[][],
+	direction: string
+): Update[] {
 	const cells: [number, number][] = [
 		[-1, 1], //BL
 		[-1, 0], //L
@@ -71,14 +60,15 @@ function rotateGrid({ x, y }: Point, grid: string[][], direction: string) {
 
 	const values = cells.map(([dx, dy]) => grid[y + dy][x + dx]);
 	const offset = direction === "R" ? -1 : 1;
+	const updates: Update[] = [];
 
 	for (let i = 0; i < cells.length; i++) {
 		const [dx, dy] = cells[i];
 		const index = (i + offset + cells.length) % cells.length;
-		grid[dy + y][dx + x] = values[index];
+		updates.push({ value: values[index], x: dx + x, y: dy + y });
 	}
 
-	return grid;
+	return updates;
 }
 function extractSecret(grid: string[][]): string {
 	for (const row of grid) {
@@ -88,34 +78,70 @@ function extractSecret(grid: string[][]): string {
 
 	throw Error("Message not found");
 }
-function getMoveMap(message: Message): Map<string, string> {
-	let coordinateGrid = structuredClone(message.grid);
+function generateMoveMap({
+	grid,
+	pivotPoints,
+	directions,
+}: Message): Map<string, string> {
+	const coordGrid = structuredClone(grid);
 
-	for (let y = 0; y < message.grid.length; y++) {
-		for (let x = 0; x < message.grid[0].length; x++) {
-			coordinateGrid[y][x] = `${x},${y}`;
+	for (let y = 0; y < grid.length; y++) {
+		for (let x = 0; x < grid[0].length; x++) {
+			coordGrid[y][x] = `${x},${y}`;
 		}
 	}
 
-	coordinateGrid = decodeMessage({ ...message, grid: coordinateGrid });
+	for (let i = 0; i < pivotPoints.length; i++) {
+		const point = pivotPoints[i];
+		const direction = directions[i % directions.length];
+
+		for (const { value, x, y } of rotatePoint(point, coordGrid, direction)) {
+			coordGrid[y][x] = value;
+		}
+	}
+
 	const moveMap: Map<string, string> = new Map();
 
-	for (let y = 0; y < message.grid.length; y++) {
-		for (let x = 0; x < message.grid[0].length; x++) {
-			moveMap.set(`${x},${y}`, coordinateGrid[y][x]);
+	for (let y = 0; y < grid.length; y++) {
+		for (let x = 0; x < grid[0].length; x++) {
+			moveMap.set(`${x},${y}`, coordGrid[y][x]);
 		}
 	}
 
 	return moveMap;
 }
-function findLoop({ grid, pivotPoints, directions }: Message) {
-	const moveMap: Map<string, string> = getMoveMap({
-		grid,
-		pivotPoints,
-		directions,
-	});
+function generatePerumations(message: Message) {
+	const moveMap: Map<string, string> = generateMoveMap(message);
+	const permutations: Map<string, string[]> = new Map();
 
-	console.log(moveMap);
+	for (const location of moveMap.keys()) {
+		const seen: Set<string> = new Set();
+		let current: string = location;
+
+		while (!seen.has(current)) {
+			seen.add(current);
+			current = moveMap.get(current)!;
+		}
+
+		permutations.set(location, [...seen]);
+	}
+
+	return permutations;
+}
+function decodeMessage(message: Message, cycle: number = 1) {
+	const permutations: Map<string, string[]> = generatePerumations(message);
+	const newGrid: string[][] = structuredClone(message.grid);
+
+	for (const [point, path] of permutations) {
+		const [x1, y1] = point.split(",").map(Number);
+		const [x2, y2] = path[cycle % path.length].split(",").map(Number);
+
+		newGrid[y1][x1] = message.grid[y2][x2];
+	}
+
+	// printGrid(newGrid);
+
+	return extractSecret(newGrid);
 }
 
 // Debug

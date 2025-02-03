@@ -26,13 +26,13 @@ describe(`EBC 2014 - Quest ${currentQuest}`, () => {
 		});
 	});
 
-	describe.skip("III", () => {
+	describe("III", () => {
 		it.skip("Example", () => {
 			expect(solve("example_III", currentQuest)).toBe(0);
 		});
 
 		it("Solution", () => {
-			expect(solve("input_III", currentQuest)).toBe(0);
+			expect(solve("input_III", currentQuest)).toBe("8954727742465868");
 		});
 	});
 });
