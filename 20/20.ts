@@ -13,7 +13,7 @@ export default function solve(fileName: string, quest: string): number {
 	}
 
 	if (fileName.endsWith("_I")) {
-		return getBestheight(course, 100);
+		return getBestHeight(course, 100);
 	}
 
 	throw Error("Invalid filename");
@@ -50,8 +50,7 @@ function parseInput(data: string) {
 
 			switch (tile) {
 				case "S":
-					course.start = { x, y };
-					break;
+					course.start = { x, y }; /* fall through */
 				case "A":
 				case "B":
 				case "C":
@@ -65,7 +64,7 @@ function parseInput(data: string) {
 
 	return course;
 }
-function getBestheight({ start, course }: Course, timeLimit: number) {
+function getBestHeight({ start, course }: Course, timeLimit: number) {
 	const visited: Map<string, number> = new Map();
 	const queue: BinaryHeap<State> = new BinaryHeap(
 		(a, b) => b.height - a.height
@@ -126,35 +125,38 @@ function getBestheight({ start, course }: Course, timeLimit: number) {
 }
 function getQuickestCircuit({ start, course, checkpoints }: Course) {
 	function BFS(
-		from: Point,
-		to: Point,
+		start: Point,
+		end: Point,
 		time: number,
 		height: number
-	): [number, number] {
+	): [number, number][] {
 		const visited: Set<string> = new Set();
 		const queue: BinaryHeap<State> = new BinaryHeap(
 			(a, b) => a.time - b.time || b.height - a.height
 		);
 
-		queue.push({ x: from.x, y: from.y, bearing: 180, height, time });
+		queue.push({ x: start.x, y: start.y, bearing: 180, height, time });
+
+		const routes: [number, number][] = [];
 
 		while (queue.length) {
 			const current = queue.pop()!;
 			const stateKey = `${current.x},${current.y}`;
 
-			if (current.x === to.x && current.y === to.y) {
-				return [current.time, current.height];
+			if (current.x === end.x && current.y === end.y) {
+				routes.push([current.time, current.height]);
+				continue;
 			}
 
-			if (visited.has(stateKey)) {
-				continue;
-			} else {
-				pushNewStates(current);
-				visited.add(stateKey);
-			}
+			// if (visited.has(stateKey)) {
+			// 	continue;
+			// } else {
+			pushNewStates(current);
+			// visited.add(stateKey);
+			// }
 		}
 
-		throw Error("Uh oh something went wrong?");
+		return routes;
 
 		function pushNewStates(current: State): void {
 			for (const { x, y, change, bearing } of getNeigbours(current)) {
@@ -190,18 +192,50 @@ function getQuickestCircuit({ start, course, checkpoints }: Course) {
 		}
 	}
 
-	let current = start;
-	let height = 10000;
-	let time = 0;
+	function optimalRoute() {
+		const queue: [string[], number, number][] = [
+			[["S", "A", "B", "C", "S"], 0, 10000],
+		];
 
-	for (const [n, checkpoint] of [...checkpoints].sort((a, b) =>
-		a[0].localeCompare(b[0])
-	)) {
-		[time, height] = BFS(start, checkpoint, time, height);
-		current = checkpoint;
+		let bestTime = Infinity;
 
-		console.log({ n, time, height });
+		while (queue.length) {
+			const current = queue.shift()!;
+
+			if (current[0].length === 1) {
+				if (current[2] >= 10_000 && current[1] < bestTime) {
+					console.log(current);
+					bestTime = current[1];
+				}
+
+				continue;
+			}
+
+			const a = checkpoints.get(current[0][0])!;
+			const b = checkpoints.get(current[0][1])!;
+
+			for (const [time, height] of BFS(a, b, current[1], current[2])) {
+				queue.push([current[0].slice(1), time, height]);
+			}
+		}
+
+		console.log(bestTime);
 	}
 
-	console.log(BFS(current, start, time, height));
+	optimalRoute();
+
+	// let current = start;
+	// let height = 10000;
+	// let time = 0;
+
+	// for (const [n, checkpoint] of [...checkpoints].sort((a, b) =>
+	// 	a[0].localeCompare(b[0])
+	// )) {
+	// 	[time, height] = BFS(start, checkpoint, time, height);
+	// 	current = checkpoint;
+
+	// 	console.log({ n, time, height });
+	// }
+
+	// console.log(BFS(current, start, time, height));
 }
