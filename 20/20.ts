@@ -123,56 +123,75 @@ function getBestHeight({ start, course }: Course, timeLimit: number) {
 		return neighbours;
 	}
 }
-function getQuickestCircuit({ start, course, checkpoints }: Course) {
-	function BFS(
-		start: Point,
-		end: Point,
-		time: number,
-		height: number
-	): [number, number][] {
-		const visited: Set<string> = new Set();
-		const queue: BinaryHeap<State> = new BinaryHeap(
-			(a, b) => a.time - b.time || b.height - a.height
+function getQuickestCircuit({ course, checkpoints }: Course) {
+	interface Node {
+		x: number;
+		y: number;
+		bearing: number;
+		height: number;
+		gCost: number;
+		hCost: number;
+		fCost: number;
+	}
+
+	function aStar(start: Point, end: Point, time: number, height: number) {
+		const open: BinaryHeap<Node> = new BinaryHeap(
+			(a, b) => a.fCost - b.fCost || b.height - a.height
 		);
-
-		queue.push({ x: start.x, y: start.y, bearing: 180, height, time });
-
+		const closed: Set<string> = new Set();
 		const routes: [number, number][] = [];
 
-		while (queue.length) {
-			const current = queue.pop()!;
-			const stateKey = `${current.x},${current.y}`;
+		open.push({
+			x: start.x,
+			y: start.y,
+			bearing: 180,
+			height,
+			gCost: time,
+			hCost: Utils.manhattanDistance(start, end),
+			fCost: Utils.manhattanDistance(start, end),
+		});
+
+		while (open.length) {
+			const current = open.pop()!;
+			const key = `${current.x},${current.y}`;
 
 			if (current.x === end.x && current.y === end.y) {
-				routes.push([current.time, current.height]);
+				routes.push([current.gCost, current.height]);
 				continue;
 			}
 
-			// if (visited.has(stateKey)) {
-			// 	continue;
-			// } else {
-			pushNewStates(current);
-			// visited.add(stateKey);
-			// }
+			if (closed.has(key)) {
+				continue;
+			} else {
+				closed.add(key);
+			}
+
+			pushNewStates(current, end);
 		}
 
 		return routes;
 
-		function pushNewStates(current: State): void {
+		function pushNewStates(current: Node, target: Point): void {
 			for (const { x, y, change, bearing } of getNeigbours(current)) {
-				queue.push({
+				const gCost = current.gCost + 1;
+				const hCost = Utils.manhattanDistance({ x, y }, target);
+				const fCost = gCost + hCost;
+
+				open.push({
 					x,
 					y,
 					height: current.height + change,
 					bearing,
-					time: current.time + 1,
+					gCost,
+					hCost,
+					fCost,
 				});
 			}
 		}
 
 		type Neighbour = Point & { change: number; bearing: number };
 
-		function getNeigbours(current: State) {
+		function getNeigbours(current: Node) {
 			const neighbours: Neighbour[] = [];
 
 			for (const direction of [0, 90, -90]) {
@@ -203,8 +222,8 @@ function getQuickestCircuit({ start, course, checkpoints }: Course) {
 			const current = queue.shift()!;
 
 			if (current[0].length === 1) {
+				console.log(current);
 				if (current[2] >= 10_000 && current[1] < bestTime) {
-					console.log(current);
 					bestTime = current[1];
 				}
 
@@ -214,7 +233,7 @@ function getQuickestCircuit({ start, course, checkpoints }: Course) {
 			const a = checkpoints.get(current[0][0])!;
 			const b = checkpoints.get(current[0][1])!;
 
-			for (const [time, height] of BFS(a, b, current[1], current[2])) {
+			for (const [time, height] of aStar(a, b, current[1], current[2])) {
 				queue.push([current[0].slice(1), time, height]);
 			}
 		}
@@ -223,19 +242,4 @@ function getQuickestCircuit({ start, course, checkpoints }: Course) {
 	}
 
 	optimalRoute();
-
-	// let current = start;
-	// let height = 10000;
-	// let time = 0;
-
-	// for (const [n, checkpoint] of [...checkpoints].sort((a, b) =>
-	// 	a[0].localeCompare(b[0])
-	// )) {
-	// 	[time, height] = BFS(start, checkpoint, time, height);
-	// 	current = checkpoint;
-
-	// 	console.log({ n, time, height });
-	// }
-
-	// console.log(BFS(current, start, time, height));
 }
